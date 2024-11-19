@@ -1,0 +1,30 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  couchbase:
+    image: couchbase:community-4.5.1   # Community Editionを明示的に指定
+    container_name: couchbase
+    environment:
+      - COUCHBASE_ADMIN_USERNAME=admin
+      - COUCHBASE_ADMIN_PASSWORD=password
+    ports:
+      - "8091:8091"  # 管理コンソール
+      - "8092:8092"  # クエリ
+      - "11210:11210"  # データサービス
+    volumes:
+      - couchbase_data:/opt/couchbase/var
+
+  api:
+    build: .
+    container_name: api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - couchbase
+    environment:
+      - COUCHBASE_HOST=couchbase
+
+volumes:
+  couchbase_data:
+    driver: local
